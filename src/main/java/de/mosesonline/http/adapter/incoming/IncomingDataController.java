@@ -1,26 +1,37 @@
 package de.mosesonline.http.adapter.incoming;
 
 import de.mosesonline.http.RequestRouterService;
+import de.mosesonline.http.UserService;
 import de.mosesonline.http.model.BackendData;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import de.mosesonline.http.model.UserSessionData;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/test")
 class IncomingDataController {
-    private final RequestRouterService firstBackendService;
+    private final RequestRouterService backendService;
+    private final UserService userService;
 
-    IncomingDataController(RequestRouterService firstBackendService) {
-        this.firstBackendService = firstBackendService;
+    IncomingDataController(RequestRouterService backendService, UserService userService) {
+        this.backendService = backendService;
+        this.userService = userService;
     }
 
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     BackendData requestSimpleData(@RequestParam(required = false) String testCase) {
-        return firstBackendService.simpleObjectRequest(testCase);
+        return backendService.simpleObjectRequest(testCase);
+    }
+
+    @GetMapping(path = "users/{id}")
+    UserSessionData getUser(@PathVariable UUID id) {
+        return userService.getUser(id);
+    }
+    @GetMapping(path = "users-session")
+    UserSessionData getUserSession() {
+        return userService.getUserSession();
     }
 
 }
