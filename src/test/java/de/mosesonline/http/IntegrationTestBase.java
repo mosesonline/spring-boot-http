@@ -6,7 +6,6 @@ import de.mosesonline.http.session.DynamoDbSessionData;
 import io.restassured.RestAssured;
 import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -23,8 +22,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticTableSchema;
 
 import java.util.UUID;
 
-import static de.mosesonline.http.TestcontainersConfiguration.localstack;
-import static de.mosesonline.http.TestcontainersConfiguration.wiremockServer;
 
 @Import({TestcontainersConfiguration.class, IntegrationTestBase.InitTestDataConfiguration.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -37,12 +34,6 @@ class IntegrationTestBase {
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
-    }
-
-    @BeforeAll
-    static void initContainers() {
-        wiremockServer.start();
-        localstack.start();
     }
 
 

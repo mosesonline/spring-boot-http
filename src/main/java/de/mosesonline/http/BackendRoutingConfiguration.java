@@ -14,7 +14,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.util.Map;
 
 @Configuration
-class BackendRoutingConfiguration {
+public class BackendRoutingConfiguration {
     public final static String BACKEND_QUALIFIER = "requested-backend-service";
     private final ApplicationContext applicationContext;
 

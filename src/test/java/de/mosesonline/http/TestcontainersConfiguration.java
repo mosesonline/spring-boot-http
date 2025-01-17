@@ -8,6 +8,7 @@ import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 import org.wiremock.integrations.testcontainers.WireMockContainer;
 
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.DYNAMODB;
@@ -18,14 +19,46 @@ class TestcontainersConfiguration {
     @Container
     static final WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:3.10.0")
             .withoutBanner()
+            .withCliArg("--verbose")
+            .withCliArg("--print-all-network-traffic")
+            .withCliArg("--global-response-templating")
             .withLogConsumer(of -> LoggerFactory.getLogger(TestcontainersConfiguration.class)
-                    .info(of.getUtf8String()));
+                    .trace(of.getUtf8String()))
+            .withMappingFromJSON("""
+                    {
+                         "request": {
+                             "method": "GET",
+                             "urlPathTemplate": "/test/{greet}"
+                         },
+                         "response": {
+                             "status": 200,
+                             "jsonBody": {
+                                 "data": "{{request.path.greet}}",
+                                 "dateTime": "{{now}}",
+                                 "decimalData": 1.23,
+                                 "status": "OK"
+                             },
+                             "headers": {
+                                 "Content-Type": "application/json",
+                                 "Cache-Control": "no-cache"
+                             }
+                         }
+                     }""");
     static final DockerImageName localstackImage = DockerImageName.parse("localstack/localstack:4.0.3");
 
     @Container
     static final LocalStackContainer localstack = new LocalStackContainer(localstackImage)
-            .withServices(DYNAMODB);
+            .withServices(DYNAMODB)
+            .withCopyFileToContainer(
+                    MountableFile.forHostPath("src/test/resources/db-init/init-dynamodb.sh"),
+                    "/etc/localstack/init/ready.d/init-resources.sh"
+            );
 
+
+    static {
+        wiremockServer.start();
+        localstack.start();
+    }
 
     @Bean
     DynamicPropertyRegistrar registerResourceServerIssuerProperty() {

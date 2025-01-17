@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,11 +26,10 @@ public class SessionRepositoryFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final var session = sessionService.obtainRequestSession(request.getHeader(X_SESSION_ID_HEADER_NAME));
+        MDC.put(X_SESSION_ID_HEADER_NAME, session.getId().toString());
         requestSessionHolder.setServletContext(request.getServletContext());
         requestSessionHolder.setRequestSession(session);
-        if (session != null) {
-            response.addHeader(X_SESSION_ID_HEADER_NAME, session.getId().toString());
-        }
+        response.addHeader(X_SESSION_ID_HEADER_NAME, session.getId().toString());
 
         filterChain.doFilter(request, response);
 

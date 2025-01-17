@@ -4,6 +4,8 @@ import de.mosesonline.http.RequestRouterService;
 import de.mosesonline.http.UserService;
 import de.mosesonline.http.model.BackendData;
 import de.mosesonline.http.model.UserSessionData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -11,6 +13,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/test")
 class IncomingDataController {
+    private final static Logger LOGGER = LoggerFactory.getLogger(IncomingDataController.class);
     private final RequestRouterService backendService;
     private final UserService userService;
 
@@ -29,6 +32,7 @@ class IncomingDataController {
     UserSessionData getUser(@PathVariable UUID id) {
         return userService.getUser(id);
     }
+
     @GetMapping(path = "users-session")
     UserSessionData getUserSession() {
         return userService.getUserSession();
