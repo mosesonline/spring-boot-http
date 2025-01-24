@@ -8,19 +8,21 @@ An example service to add multiple modular backends with spring-boot.
 
 The incoming "x-backend" header controls the backend.
 
-## first backend use case
+## Backends
+
+### first backend use case
 
 Simple backend with different model as incoming requires an extra mapper and encoding.
 
-## second backend use case
+### second backend use case
 
 Simple backend with same model as incoming.
 
-## third backend use case
+### third backend use case
 
 By default disabled backend
 
-## fourth backend use case
+### fourth backend use case
 
 Retry backend
 
@@ -29,9 +31,13 @@ TODO
 
 TODO:
 - sanitize logging
+- montoring
+- correlation
+- "session"
 
-Targets:
+## Targets:
 - No Lombok
 - SoC separation of concerns
 - well seperated backend
 - Documented and tested.
+- Add some production features for http facades/gateways like retry, timelimiter, logging, separate requests belonging to a session, monitoring
