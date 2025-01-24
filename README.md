@@ -2,6 +2,8 @@
 
 [![Java CI with Maven](https://github.com/mosesonline/spring-boot-http/actions/workflows/main.yml/badge.svg)](https://github.com/mosesonline/spring-boot-http/actions/workflows/main.yml)
 
+A private sample project for public.
+
 An example service to add multiple modular backends with spring-boot.
 
 The incoming "x-backend" header controls the backend.
