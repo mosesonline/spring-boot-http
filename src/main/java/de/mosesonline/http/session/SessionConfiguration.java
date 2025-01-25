@@ -28,7 +28,7 @@ public class SessionConfiguration {
 
 
     @Bean
-    public DynamoDbClient getDynamoDbClient() {
+    DynamoDbClient getDynamoDbClient() {
         return DynamoDbClient.builder()
                 .endpointOverride(URI.create(endpoint))
                 .region(Region.of(region))
@@ -38,7 +38,7 @@ public class SessionConfiguration {
     }
 
     @Bean
-    public DynamoDbEnhancedClient getDynamoDbEnhancedClient() {
+    DynamoDbEnhancedClient getDynamoDbEnhancedClient() {
         return DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(getDynamoDbClient())
                 .build();
