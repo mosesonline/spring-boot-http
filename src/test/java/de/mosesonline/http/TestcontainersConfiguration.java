@@ -49,6 +49,7 @@ class TestcontainersConfiguration {
     @Container
     static final LocalStackContainer localstack = new LocalStackContainer(localstackImage)
             .withServices(DYNAMODB)
+            .withLogConsumer(System.out::println)
             .withCopyFileToContainer(
                     MountableFile.forHostPath("src/test/resources/db-init/init-dynamodb.sh"),
                     "/etc/localstack/init/ready.d/init-resources.sh"
