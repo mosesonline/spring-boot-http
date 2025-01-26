@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.*;
 @Execution(ExecutionMode.CONCURRENT)
 class SessionDataTest extends IntegrationTestBase {
 
-    private static final String VALID_DATE_PATTERN = "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.\\d+)?[+\\-][0-9]{2}:[0-9]{2}";
+    private static final String VALID_DATE_PATTERN = "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.\\d+)?([+\\-][0-9]{2}:[0-9]{2}|Z)";
 
     @Test
     void userHasSessionDataLastAccessedValue() {
