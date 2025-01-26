@@ -16,6 +16,7 @@ public @interface BackendService {
 
     @AliasFor(annotation = Component.class)
     String value() default "";
+
     @AliasFor(annotation = Qualifier.class, attribute = "value")
     String backendId();
 }

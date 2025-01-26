@@ -39,7 +39,7 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<WebError> handleException(ExecutionException e) {
         if (e.getCause() instanceof TimeoutException timeoutException) {
             return handleException(timeoutException);
-        } else if(e.getCause() instanceof Exception exception){
+        } else if (e.getCause() instanceof Exception exception) {
             return handleException(exception);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(new WebError(e.getMessage()));

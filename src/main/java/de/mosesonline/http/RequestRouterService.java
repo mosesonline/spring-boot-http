@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
 
+import static de.mosesonline.http.BackendRoutingConfiguration.BACKEND_QUALIFIER;
+
 @Service
 public class RequestRouterService {
 
     private final BackendPort backendPort;
 
-    RequestRouterService(@Qualifier("requested-backend-service") BackendPort backendPort) {
+    RequestRouterService(@Qualifier(BACKEND_QUALIFIER) BackendPort backendPort) {
         this.backendPort = backendPort;
     }
 

@@ -33,8 +33,8 @@ public class FirstBackendConfiguration {
                 .build();
         PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create().setDefaultSocketConfig(socketConfig).build();
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        clientHttpRequestFactory.setConnectTimeout(2_000);
-        clientHttpRequestFactory.setConnectionRequestTimeout(2_000);
+        clientHttpRequestFactory.setConnectTimeout(20_000);
+        clientHttpRequestFactory.setConnectionRequestTimeout(20_000);
         clientHttpRequestFactory.setHttpClient(HttpClientBuilder.create().setConnectionManager(connectionManager).build());
         final var restClient = RestClient.builder()
                 .baseUrl(backendHostUrl)

@@ -15,7 +15,7 @@ import java.io.IOException;
 public class BackendRequestContextFilter extends OncePerRequestFilter {
     private final BackendRequestContext backendRequestContext;
 
-    public BackendRequestContextFilter(BackendRequestContext backendRequestContext) {
+    BackendRequestContextFilter(BackendRequestContext backendRequestContext) {
         this.backendRequestContext = backendRequestContext;
     }
 

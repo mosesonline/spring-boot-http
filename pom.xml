@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.1</version>
+        <version>3.4.2</version>
     </parent>
     <groupId>de.mosesonline</groupId>
     <artifactId>spring-boot-http-gateway</artifactId>
@@ -29,17 +29,21 @@
     </scm>
     <properties>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
-        <logback.version>1.5.15</logback.version>
-        <assertj.version>3.27.1</assertj.version>
+        <assertj.version>3.27.3</assertj.version>
+        <mockito.version>5.15.2</mockito.version>
         <hamcrest.version>3.0</hamcrest.version>
         <java.version>23</java.version>
         <logbook-spring-boot-starter.version>3.10.0</logbook-spring-boot-starter.version>
+        <aws-cloud.version>3.3.0</aws-cloud.version>
+        <resilience4j.version>2.3.0</resilience4j.version>
         <archunit-junit5.version>1.3.0</archunit-junit5.version>
         <!--        <jmolecules-integrations.version>0.24.1</jmolecules-integrations.version>-->
         <commons-compress.version>1.27.1</commons-compress.version>
+        <awscdk.version>1.204.0</awscdk.version>
+        <awssdk-v2.version>2.30.4</awssdk-v2.version>
     </properties>
     <dependencies>
-        <!--~~(org.springframework:spring-web:6.2.1)~~>--><!--~~(org.springframework:spring-web:6.2.1)~~>--><dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -56,13 +60,17 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter-dynamodb</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-micrometer</artifactId>
-            <version>2.2.0</version>
+            <version>${resilience4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.zalando</groupId>
@@ -72,6 +80,11 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
+            <artifactId>dynamodb</artifactId>
+            <version>${awscdk.version}</version>
         </dependency>
 
 
@@ -83,6 +96,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>localstack</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -112,12 +131,6 @@
             <version>${archunit-junit5.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.jmolecules.integrations</groupId>-->
-        <!--            <artifactId>jmolecules-archunit</artifactId>-->
-        <!--            <version>${jmolecules-integrations.version}</version>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -125,6 +138,27 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-bom</artifactId>
+                <version>${resilience4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${awssdk-v2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>${aws-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -136,6 +170,15 @@
         </dependencies>
     </dependencyManagement>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources-filtered</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -166,13 +209,12 @@
                 <configuration>
                     <exportDatatables>true</exportDatatables>
                     <activeRecipes>
-                        <recipe>org.openrewrite.java.boot3.ReplaceMockBeanAndSpyBean</recipe>
+                        <recipe>org.openrewrite.java.spring.boot3.ReplaceMockBeanAndSpyBean</recipe>
                         <recipe>org.openrewrite.java.spring.boot3.SpringBoot3BestPractices</recipe>
                         <recipe>org.openrewrite.java.spring.boot3.EnableVirtualThreads</recipe>
                         <recipe>org.openrewrite.java.spring.http.ReplaceStringLiteralsWithHttpHeadersConstants</recipe>
                         <recipe>org.openrewrite.java.spring.http.ReplaceStringLiteralsWithMediaTypeConstants</recipe>
                         <recipe>org.openrewrite.java.spring.http.SimplifyMediaTypeParseCalls</recipe>
-                        <recipe>org.openrewrite.java.spring.http.SpringWebDependency</recipe>
                         <recipe>org.openrewrite.java.testing.junit5.JUnit4to5Migration</recipe>
                         <recipe>org.openrewrite.java.testing.junit5.JUnit5BestPractices</recipe>
                         <recipe>org.openrewrite.java.testing.assertj.Assertj</recipe>
@@ -182,12 +224,12 @@
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-spring</artifactId>
-                        <version>5.25.0</version>
+                        <version>6.0.2</version>
                     </dependency>
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-testing-frameworks</artifactId>
-                        <version>2.24.0</version>
+                        <version>3.1.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -204,6 +246,24 @@
                 <configuration>
                     <rulesUri>file:///${project.basedir}/rules.xml
                     </rulesUri>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-javaagent:${org.mockito:mockito-core:jar}</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -233,17 +293,17 @@
                 <plugin>
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>5.47.3</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.openrewrite.maven</groupId>
-                    <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>5.47.3</version>
+                    <version>6.0.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>
