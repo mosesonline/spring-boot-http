@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.2</version>
+        <version>3.4.3</version>
     </parent>
     <groupId>de.mosesonline</groupId>
     <artifactId>spring-boot-http-gateway</artifactId>
@@ -29,18 +29,19 @@
     </scm>
     <properties>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <junit-jupiter.version>5.12.0</junit-jupiter.version>
         <assertj.version>3.27.3</assertj.version>
-        <mockito.version>5.15.2</mockito.version>
+        <mockito.version>5.16.0</mockito.version>
         <hamcrest.version>3.0</hamcrest.version>
         <java.version>23</java.version>
-        <logbook-spring-boot-starter.version>3.10.0</logbook-spring-boot-starter.version>
+        <logbook-spring-boot-starter.version>3.11.0</logbook-spring-boot-starter.version>
         <aws-cloud.version>3.3.0</aws-cloud.version>
         <resilience4j.version>2.3.0</resilience4j.version>
-        <archunit-junit5.version>1.3.0</archunit-junit5.version>
+        <archunit-junit5.version>1.4.0</archunit-junit5.version>
         <!--        <jmolecules-integrations.version>0.24.1</jmolecules-integrations.version>-->
         <commons-compress.version>1.27.1</commons-compress.version>
         <awscdk.version>1.204.0</awscdk.version>
-        <awssdk-v2.version>2.30.4</awssdk-v2.version>
+        <awssdk-v2.version>2.30.36</awssdk-v2.version>
     </properties>
     <dependencies>
         <dependency>
@@ -224,12 +225,12 @@
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-spring</artifactId>
-                        <version>6.0.2</version>
+                        <version>6.2.1</version>
                     </dependency>
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-testing-frameworks</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.3.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -277,7 +278,7 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.8.6.6</version>
+                    <version>4.9.2.0</version>
                     <configuration>
                         <includeFilterFile>spotbugs-security-include.xml</includeFilterFile>
                         <excludeFilterFile>spotbugs-security-exclude.xml</excludeFilterFile>
@@ -293,7 +294,7 @@
                 <plugin>
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.0.5</version>
+                    <version>6.2.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
