@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneId;
 
 @Component
-public class FirstModelMapper {
+class FirstModelMapper {
 
     BackendData map(FirstBackendData backendData) {
         return new BackendData(backendData.data(), backendData.dateTime().atZone(ZoneId.of("Europe/Berlin")).withZoneSameInstant(ZoneId.of("UTC")).toOffsetDateTime(), backendData.decimalData(), map(backendData.status()));

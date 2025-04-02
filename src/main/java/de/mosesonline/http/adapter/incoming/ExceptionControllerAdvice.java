@@ -3,6 +3,8 @@ package de.mosesonline.http.adapter.incoming;
 import de.mosesonline.http.model.exception.BackendException;
 import de.mosesonline.http.model.exception.BackendUnknownException;
 import de.mosesonline.http.model.exception.WebError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +16,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 @ControllerAdvice
-public class ExceptionControllerAdvice {
+class ExceptionControllerAdvice {
+    private final Logger LOGGER = LoggerFactory.getLogger(ExceptionControllerAdvice.class);
 
     @ExceptionHandler({BackendException.class})
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
@@ -48,6 +51,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<WebError> handleException(Exception e) {
+        LOGGER.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(new WebError(e.getMessage()));
     }
 

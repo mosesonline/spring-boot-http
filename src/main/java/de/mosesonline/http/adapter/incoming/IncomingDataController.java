@@ -1,11 +1,9 @@
 package de.mosesonline.http.adapter.incoming;
 
-import de.mosesonline.http.RequestRouterService;
-import de.mosesonline.http.UserService;
 import de.mosesonline.http.model.BackendData;
 import de.mosesonline.http.model.UserSessionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.mosesonline.http.routing.RequestRouterService;
+import de.mosesonline.http.user.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -13,7 +11,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/test")
 class IncomingDataController {
-    private final static Logger LOGGER = LoggerFactory.getLogger(IncomingDataController.class);
     private final RequestRouterService backendService;
     private final UserService userService;
 

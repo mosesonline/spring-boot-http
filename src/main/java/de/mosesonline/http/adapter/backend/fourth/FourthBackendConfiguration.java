@@ -13,11 +13,11 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class FourthBackendConfiguration {
 
     @Bean
-    FourthBackendClient fourthBackendClient(@Value("${backend.host.url}") String backendHostUrl) {
+    FourthBackendClient fourthBackendClient(@Value("${fourth-backend-service.host.url}") String backendHostUrl) {
         SocketConfig socketConfig = SocketConfig.custom()
                 .setSoTimeout(Timeout.ofMilliseconds(10))
                 .build();

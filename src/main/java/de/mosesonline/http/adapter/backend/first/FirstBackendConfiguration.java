@@ -18,7 +18,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class FirstBackendConfiguration {
     private static final ObjectMapper FIRST_BACKEND_OM = new ObjectMapper()
             .registerModule(new Jdk8Module())
@@ -27,7 +27,7 @@ public class FirstBackendConfiguration {
             .configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
 
     @Bean
-    FirstBackendClient firstBackendClient(@Value("${backend.host.url}") String backendHostUrl) {
+    FirstBackendClient firstBackendClient(@Value("${first-backend-service.host.url}") String backendHostUrl) {
         SocketConfig socketConfig = SocketConfig.custom()
                 .setSoTimeout(Timeout.ofSeconds(10))
                 .build();
@@ -51,4 +51,47 @@ public class FirstBackendConfiguration {
                 .build();
         return factory.createClient(FirstBackendClient.class);
     }
+
+    /*@Configuration(proxyBeanMethods = false)
+    static class FirstBackendAotConfig implements BeanRegistrationAotProcessor {
+
+        private final FirstBackendClient firstBackendClient;
+        private final FirstModelMapper mapper;
+
+        FirstBackendAotConfig(FirstBackendClient firstBackendClient, FirstModelMapper mapper) {
+            this.firstBackendClient = firstBackendClient;
+            this.mapper = mapper;
+        }
+
+        @Override
+        public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
+            return (ctx, code) -> {
+
+                var generatedClasses = ctx.getGeneratedClasses();
+
+                var generatedClass = generatedClasses.getOrAddForFeatureComponent(
+                        FirstBackendService.class.getSimpleName() + "Feature", FirstBackendService.class,
+                        b -> b.addModifiers(Modifier.PUBLIC));
+
+                var generatedMethod = generatedClass.getMethods().add("postProcessCompilationEndpoint", build -> {
+
+                    var outputBeanVariableName = "outputBean";
+                    build.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                            .addParameter(RegisteredBean.class, "registeredBean") //
+                            .addParameter(FirstBackendService.class, "inputBean")//
+                            .returns(FirstBackendService.class)
+                            // <6>
+                            .addCode(CodeBlock.builder()
+                                    .addStatement("$T $L = new $T( $T $S, $S)",
+                                            FirstBackendService.class, outputBeanVariableName, FirstBackendService.class,
+                                            FirstBackendClient.class, "FirstBackendClient_firstBackendClient",
+
+                                    ).addStatement("return $L", outputBeanVariableName).build());
+                });
+                var methodReference = generatedMethod.toMethodReference();
+                code.addInstancePostProcessor(methodReference);
+            };
+        }
+
+    }*/
 }

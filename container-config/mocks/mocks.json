@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/test/first"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {"data":"first","dateTime":"{{now}}","decimalData":0.0,"status":"OK"},
+    "headers": {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-cache"
+    }
+  }
+}

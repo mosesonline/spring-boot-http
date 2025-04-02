@@ -1,7 +1,7 @@
 package de.mosesonline.http.adapter.backend.first;
 
 import de.mosesonline.http.api.BackendPort;
-import de.mosesonline.http.api.BackendService;
+import de.mosesonline.http.api.QualifiedBackendService;
 import de.mosesonline.http.api.SessionBackendPort;
 import de.mosesonline.http.model.BackendData;
 import de.mosesonline.http.model.UserData;
@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 
-@BackendService(backendId = "first")
+@QualifiedBackendService(backendId = "first")
 class FirstBackendService implements BackendPort, SessionBackendPort {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirstBackendService.class);
     private final FirstBackendClient backendClient;

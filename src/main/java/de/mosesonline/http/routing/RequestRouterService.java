@@ -1,27 +1,25 @@
-package de.mosesonline.http;
+package de.mosesonline.http.routing;
 
 import de.mosesonline.http.api.BackendPort;
 import de.mosesonline.http.model.BackendData;
 import de.mosesonline.http.model.exception.BackendException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
 
-import static de.mosesonline.http.BackendRoutingConfiguration.BACKEND_QUALIFIER;
 
 @Service
 public class RequestRouterService {
 
-    private final BackendPort backendPort;
+    private final BackendPort backendService;
 
-    RequestRouterService(@Qualifier(BACKEND_QUALIFIER) BackendPort backendPort) {
-        this.backendPort = backendPort;
+    RequestRouterService(BackendPort backendService) {
+        this.backendService = backendService;
     }
 
     public BackendData simpleObjectRequest(String testCase) {
         try {
-            return backendPort.fetchBackendData(testCase).get();
+            return backendService.fetchBackendData(testCase).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new BackendException(e);
         }

@@ -3,7 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+volume
+container-config/grafana/data/*
+!container-config/grafana/data/.keepme
 ### STS ###
 .apt_generated
 .classpath

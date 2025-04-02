@@ -1,0 +1,78 @@
+services:
+  http-service:
+    image: registry.github.com/mosesonline/services/http:latest
+    ports:
+      - 18080:8080
+      - 18081:8081
+    #logging:
+    #  driver: loki
+    #  options:
+    #    loki-url: http://loki:3100/api/v1/push
+    environment:
+      - AWS_DYNAMODB_ACCESSKEY=test
+      - AWS_DYNAMODB_SECRETKEY=test
+      - AWS_DYNAMODB_REGION=us-east-1
+      - AWS_DYNAMODB_ENDPOINT=http://dynamo:4566
+      - FIRSTBACKENDSERVICE_HOST_URL=http://backends:8080
+      - SECONDBACKENDSERVICE_HOST_URL=http://backends:8080
+      - FOURTHBACKENDSERVICE_HOST_URL=http://backends:8080
+      - SPRING_PROFILES_ACTIVE=aot
+    depends_on:
+      - dynamo
+      - loki
+      - backends
+  backends:
+    container_name: backends
+    image: wiremock/wiremock:3.12.1
+    command:
+      - "/docker-entrypoint.sh"
+      - "--verbose"
+      - "--global-response-templating"
+    volumes:
+      - ./container-config/mocks:/home/wiremock/mappings
+  dynamo:
+    image: localstack/localstack:4.3
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+      - SERVICES=dynamodb
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./container-config/dynamo/db-init/init-dynamodb.sh:/etc/localstack/init/ready.d/init-dynamodb.sh
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v3.2.1
+    ports:
+      - 19090:9090
+    volumes:
+      - ./container-config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:11.5.2
+    ports:
+      - 13000:3000
+    depends_on:
+      - prometheus
+    environment:
+      - GF_PATHS_DATA=/var/lib/grafana/data
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./container-config/grafana/data:/var/lib/grafana/data
+      - ./container-config/grafana/grafana.ini:/etc/grafana/grafana.ini
+# needs docker plugin install grafana/loki-docker-driver:3.4.2-amd64 keep version up-to-date
+  loki:
+    container_name: loki
+    image: grafana/loki:main
+    ports:
+      - 13100:3100
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./container-config/loki/config.yaml:/etc/loki/config.yml
+      - loki:/data/loki:rw
+volumes:
+  loki:

@@ -17,7 +17,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @Testcontainers
 class TestcontainersConfiguration {
     @Container
-    static final WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:3.10.0")
+    static final WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:3.12.1")
             .withoutBanner()
             .withCliArg("--verbose")
             .withCliArg("--print-all-network-traffic")
@@ -44,7 +44,7 @@ class TestcontainersConfiguration {
                              }
                          }
                      }""");
-    static final DockerImageName localstackImage = DockerImageName.parse("localstack/localstack:4.0.3");
+    static final DockerImageName localstackImage = DockerImageName.parse("localstack/localstack:4.2");
 
     @Container
     static final LocalStackContainer localstack = new LocalStackContainer(localstackImage)
@@ -63,7 +63,10 @@ class TestcontainersConfiguration {
     @Bean
     DynamicPropertyRegistrar registerResourceServerIssuerProperty() {
         return (registry) -> {
-            registry.add("backend.host.url", wiremockServer::getBaseUrl);
+            registry.add("first-backend-service.host.url", wiremockServer::getBaseUrl);
+            registry.add("second-backend-service.host.url", wiremockServer::getBaseUrl);
+            registry.add("third-backend-service.host.url", wiremockServer::getBaseUrl);
+            registry.add("fourth-backend-service.host.url", wiremockServer::getBaseUrl);
             registry.add("aws.dynamodb.accessKey", localstack::getAccessKey);
             registry.add("aws.dynamodb.secretKey", localstack::getSecretKey);
             registry.add("aws.dynamodb.region", localstack::getRegion);

@@ -1,28 +1,26 @@
-package de.mosesonline.http;
+package de.mosesonline.http.user;
 
 import de.mosesonline.http.api.SessionBackendPort;
 import de.mosesonline.http.model.UserData;
 import de.mosesonline.http.model.UserSessionData;
 import de.mosesonline.http.session.web.RequestSessionHolder;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static de.mosesonline.http.BackendRoutingConfiguration.BACKEND_QUALIFIER;
 
 @Service
 public class UserService {
-    private final SessionBackendPort sessionBackendPort;
+    private final SessionBackendPort sessionBackendService;
     private final RequestSessionHolder requestSessionHolder;
 
-    UserService(@Qualifier(BACKEND_QUALIFIER) SessionBackendPort sessionBackendPort, RequestSessionHolder requestSessionHolder) {
-        this.sessionBackendPort = sessionBackendPort;
+    UserService(SessionBackendPort sessionBackendService, RequestSessionHolder requestSessionHolder) {
+        this.sessionBackendService = sessionBackendService;
         this.requestSessionHolder = requestSessionHolder;
     }
 
     public UserSessionData getUser(UUID userId) {
-        UserData userData = sessionBackendPort.requestUserData(userId);
+        UserData userData = sessionBackendService.requestUserData(userId);
         requestSessionHolder.getRequestSession().setUser(userData);
         return new UserSessionData(userData, requestSessionHolder.getRequestSession().getLastAccessedTime());
     }
