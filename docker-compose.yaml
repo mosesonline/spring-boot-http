@@ -4,6 +4,7 @@ services:
     ports:
       - "18080:8080"
       - "18081:8081"
+    mem_limit: 1G
     logging:
       driver: loki
       options:
