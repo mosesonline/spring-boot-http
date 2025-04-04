@@ -2,12 +2,16 @@ services:
   http-service:
     image: registry.github.com/mosesonline/services/http:latest
     ports:
-      - 18080:8080
-      - 18081:8081
-    #logging:
-    #  driver: loki
-    #  options:
-    #    loki-url: http://loki:3100/api/v1/push
+      - "18080:8080"
+      - "18081:8081"
+    logging:
+      driver: loki
+      options:
+        loki-url: http://localhost:3100/loki/api/v1/push
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
     environment:
       - AWS_DYNAMODB_ACCESSKEY=test
       - AWS_DYNAMODB_SECRETKEY=test
@@ -47,14 +51,14 @@ services:
     container_name: prometheus
     image: prom/prometheus:v3.2.1
     ports:
-      - 19090:9090
+      - "19090:9090"
     volumes:
       - ./container-config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
   grafana:
     container_name: grafana
     image: grafana/grafana-oss:11.6.0
     ports:
-      - 13000:3000
+      - "13000:3000"
     depends_on:
       - prometheus
     environment:
@@ -67,9 +71,9 @@ services:
 # needs docker plugin install grafana/loki-docker-driver:3.4.2-amd64 keep version up-to-date
   loki:
     container_name: loki
-    image: grafana/loki:main
+    image: grafana/loki:latest
     ports:
-      - 13100:3100
+      - "3100:3100"
     command: -config.file=/etc/loki/config.yml
     volumes:
       - ./container-config/loki/config.yaml:/etc/loki/config.yml
