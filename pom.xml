@@ -46,6 +46,7 @@
         <commons-compress.version>1.27.1</commons-compress.version>
         <awscdk.version>1.204.0</awscdk.version>
         <awssdk-v2.version>2.31.16</awssdk-v2.version>
+        <image.name>registry.github.com/mosesonline/services/http:latest</image.name>
     </properties>
     <dependencies>
         <dependency>
@@ -104,10 +105,10 @@
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter-brave</artifactId>
         </dependency>
- <!--       <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-micrometer</artifactId>
-        </dependency>-->
+        <!--       <dependency>
+                   <groupId>io.github.openfeign</groupId>
+                   <artifactId>feign-micrometer</artifactId>
+               </dependency>-->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
@@ -223,32 +224,26 @@
                         <goals>
                             <goal>process-aot</goal>
                         </goals>
-                        <configuration>
-                            <profiles>aot</profiles>
-                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <image>
                         <builder>paketobuildpacks/builder-jammy-tiny</builder>
-                        <name>registry.github.com/mosesonline/services/http:latest</name>
+                        <name>${image.name}</name>
                         <bindings>
-                            <!--                            <binding>${project.basedir}/src/test/resources:/config:ro</binding>-->
-                            <!--                            <binding>${project.basedir}/src/test/resources-filtered:/config:ro</binding>-->
-                            <!--                            <binding>${project.basedir}src/test/resources/db-init:/app/src/test/resources/db-init:ro-->
-                            <!--                            </binding>-->
+                            <binding>${project.basedir}/src/test/resources:/config:ro</binding>
+                            <binding>${project.basedir}/src/test/resources/db-init:/app/src/test/resources/db-init:ro
+                            </binding>
                         </bindings>
                         <env>
                             <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
                             <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
-                            <!--                            <BP_JVM_CDS_ENABLED>true</BP_JVM_CDS_ENABLED>-->
-                            <BP_SPRING_AOT_ENABLED>true</BP_SPRING_AOT_ENABLED>
+                            <BP_JVM_CDS_ENABLED>true</BP_JVM_CDS_ENABLED>
+                            <BPL_JVM_CDS_ENABLED>true</BPL_JVM_CDS_ENABLED>
                             <BPL_SPRING_AOT_ENABLED>true</BPL_SPRING_AOT_ENABLED>
-                            <!--                                <test>-H:ReflectionConfigurationFiles=/workspace/META-INF/native-image/logback-config.json
-                                                        </test>-->
-                            <!--                            <CDS_TRAINING_JAVA_TOOL_OPTIONS>-->
-                            <!--                                -Dspring.config.location=optional:classpath:/application.properties,/config/application-test.properties-->
-                            <!--                            </CDS_TRAINING_JAVA_TOOL_OPTIONS>-->
+                            <CDS_TRAINING_JAVA_TOOL_OPTIONS>
+                                -Dspring.config.location=optional:file:/config/application-cds.properties
+                            </CDS_TRAINING_JAVA_TOOL_OPTIONS>
                         </env>
                     </image>
                     <createdDate>now</createdDate>
@@ -379,5 +374,38 @@
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>aot</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <executions> <!-- not necessary for arm64, but better take good habits now-->
+                            <execution>
+                                <id>process-aot</id>
+                                <goals>
+                                    <goal>process-aot</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <image>
+                                <builder>paketobuildpacks/builder-jammy-tiny</builder>
+                                <name>${image.name}</name>
+                                <env>
+                                    <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+                                    <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
+                                    <BP_SPRING_AOT_ENABLED>true</BP_SPRING_AOT_ENABLED>
+                                </env>
+                            </image>
+                            <createdDate>now</createdDate>
+                        </configuration>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
