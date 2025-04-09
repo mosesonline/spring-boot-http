@@ -45,7 +45,7 @@
         <!--        <jmolecules-integrations.version>0.24.1</jmolecules-integrations.version>-->
         <commons-compress.version>1.27.1</commons-compress.version>
         <awscdk.version>1.204.0</awscdk.version>
-        <awssdk-v2.version>2.31.17</awssdk-v2.version>
+        <awssdk-v2.version>2.31.18</awssdk-v2.version>
         <image.name>registry.github.com/mosesonline/services/http:latest</image.name>
     </properties>
     <dependencies>

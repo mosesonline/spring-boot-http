@@ -13,6 +13,16 @@ services:
         loki-max-backoff: 800ms
         loki-timeout: 1s
         keep-file: "true"
+        loki-pipeline-stages: |
+          - json:
+              expressions:
+                x_session_id: "\"X-Session-Id\""
+                spanId: spanId
+                traceId: traceId
+          - labels:
+              x_session_id:
+              spanId:
+              traceId:
     environment:
       - AWS_DYNAMODB_ACCESSKEY=test
       - AWS_DYNAMODB_SECRETKEY=test
@@ -50,14 +60,14 @@ services:
       - ./container-config/dynamo/db-init/init-dynamodb.sh:/etc/localstack/init/ready.d/init-dynamodb.sh
   prometheus:
     container_name: prometheus
-    image: prom/prometheus:v3.2.1
+    image: prom/prometheus:main
     ports:
       - "19090:9090"
     volumes:
       - ./container-config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
   grafana:
     container_name: grafana
-    image: grafana/grafana-oss:11.6.0
+    image: grafana/grafana-oss:main
     ports:
       - "13000:3000"
     depends_on:
