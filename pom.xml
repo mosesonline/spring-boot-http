@@ -78,6 +78,11 @@
         </dependency>
         <dependency>
             <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-all</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-micrometer</artifactId>
             <version>${resilience4j.version}</version>
         </dependency>
@@ -393,7 +398,8 @@
                                 <name>${image.name}</name>
                                 <bindings>
                                     <binding>${project.basedir}/src/test/resources:/config:ro</binding>
-                                    <binding>${project.basedir}/src/test/resources/db-init:/app/src/test/resources/db-init:ro
+                                    <binding>
+                                        ${project.basedir}/src/test/resources/db-init:/app/src/test/resources/db-init:ro
                                     </binding>
                                 </bindings>
                                 <env>

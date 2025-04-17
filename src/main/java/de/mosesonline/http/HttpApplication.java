@@ -3,7 +3,6 @@ package de.mosesonline.http;
 import de.mosesonline.http.routing.RequestRouterService;
 import de.mosesonline.http.session.DynamoDbSessionData;
 import de.mosesonline.http.session.RawRequestSession;
-import io.github.resilience4j.springboot3.nativeimage.configuration.NativeHintsConfiguration;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -19,9 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SpringBootApplication
-@ImportRuntimeHints({HttpApplication.Hints.class, NativeHintsConfiguration.class})
+@ImportRuntimeHints({HttpApplication.Hints.class})
 @RegisterReflection(classes = DynamoDbSessionData.class, memberCategories =
-        { MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS })
+        {MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS})
 @RegisterReflectionForBinding(RequestRouterService.class)
 @ReflectiveScan
 public class HttpApplication {

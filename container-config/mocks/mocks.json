@@ -5,6 +5,7 @@
   },
   "response": {
     "status": 200,
+    "fixedDelayMilliseconds": 5000,
     "jsonBody": {"data":"first","dateTime":"{{now}}","decimalData":0.0,"status":"OK"},
     "headers": {
       "Content-Type": "application/json",
