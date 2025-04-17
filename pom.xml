@@ -401,7 +401,6 @@
                                     <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
                                     <BP_JVM_CDS_ENABLED>true</BP_JVM_CDS_ENABLED>
                                     <BPL_JVM_CDS_ENABLED>true</BPL_JVM_CDS_ENABLED>
-                                    <BPL_SPRING_AOT_ENABLED>true</BPL_SPRING_AOT_ENABLED>
                                     <CDS_TRAINING_JAVA_TOOL_OPTIONS>
                                         -Dspring.config.location=optional:file:/config/application-cds.properties
                                     </CDS_TRAINING_JAVA_TOOL_OPTIONS>
@@ -436,6 +435,7 @@
                                     <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
                                     <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
                                     <BP_SPRING_AOT_ENABLED>true</BP_SPRING_AOT_ENABLED>
+                                    <BPL_SPRING_AOT_ENABLED>true</BPL_SPRING_AOT_ENABLED>
                                 </env>
                             </image>
                             <createdDate>now</createdDate>

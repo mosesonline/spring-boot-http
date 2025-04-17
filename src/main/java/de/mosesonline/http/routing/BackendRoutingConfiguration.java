@@ -9,13 +9,11 @@ import de.mosesonline.http.model.exception.BackendUnknownException;
 import io.github.resilience4j.springboot3.nativeimage.configuration.NativeHintsConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aot.hint.annotation.Reflective;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.Map;
@@ -40,8 +38,7 @@ public class BackendRoutingConfiguration {
     }
 
     @Bean
-    @RequestScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-    @Reflective
+    @RequestScope
     BackendPort backendService(BackendRequestContext backendRequestContext) {
         LOGGER.info("Backend service requested: {}", backendRequestContext.getBackendDiscriminator());
         BackendPort port = getPort(backendRequestContext, backendServiceBeans);
@@ -50,8 +47,7 @@ public class BackendRoutingConfiguration {
     }
 
     @Bean
-    @RequestScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-    @Reflective
+    @RequestScope
     SessionBackendPort sessionBackendService(BackendRequestContext backendRequestContext) {
         LOGGER.info("Session backend service requested: {}", backendRequestContext.getBackendDiscriminator());
         return getPort(backendRequestContext, sessionBackendPortsBeans);

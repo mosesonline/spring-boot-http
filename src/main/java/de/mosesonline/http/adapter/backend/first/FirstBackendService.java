@@ -22,6 +22,7 @@ class FirstBackendService implements BackendPort, SessionBackendPort {
     FirstBackendService(FirstBackendClient firstBackendClient, FirstModelMapper firstModelMapper) {
         this.firstBackendClient = firstBackendClient;
         this.firstModelMapper = firstModelMapper;
+        LOGGER.info("First backend service created");
     }
 
     @TimeLimiter(name = "first-backend-service")
