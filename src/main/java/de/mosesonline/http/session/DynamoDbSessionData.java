@@ -1,5 +1,6 @@
 package de.mosesonline.http.session;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
@@ -11,6 +12,7 @@ public class DynamoDbSessionData {
     private UUID id;
     private String sessionData;
 
+    @JsonCreator
     static DynamoDbSessionData from(UUID id,
                                     String sessionData) {
         final var data = new DynamoDbSessionData();

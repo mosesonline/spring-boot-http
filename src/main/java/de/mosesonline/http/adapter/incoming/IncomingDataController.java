@@ -4,6 +4,8 @@ import de.mosesonline.http.model.BackendData;
 import de.mosesonline.http.model.UserSessionData;
 import de.mosesonline.http.routing.RequestRouterService;
 import de.mosesonline.http.user.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -11,18 +13,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/test")
 class IncomingDataController {
-    private final RequestRouterService backendService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(IncomingDataController.class);
+    private final RequestRouterService requestRouterService;
     private final UserService userService;
 
-    IncomingDataController(RequestRouterService backendService, UserService userService) {
-        this.backendService = backendService;
+    IncomingDataController(RequestRouterService requestRouterService, UserService userService) {
+        this.requestRouterService = requestRouterService;
         this.userService = userService;
     }
 
 
     @GetMapping
     BackendData requestSimpleData(@RequestParam(required = false) String testCase) {
-        return backendService.simpleObjectRequest(testCase);
+        LOGGER.info("Test case: {} delegating to {}", testCase, requestRouterService);
+        return requestRouterService.simpleObjectRequest(testCase);
     }
 
     @GetMapping(path = "users/{id}")

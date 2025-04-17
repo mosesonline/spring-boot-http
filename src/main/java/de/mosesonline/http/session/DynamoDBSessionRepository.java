@@ -2,28 +2,33 @@ package de.mosesonline.http.session;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.aot.hint.annotation.Reflective;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
+
+import static de.mosesonline.http.session.SessionConfiguration.TABLE_SCHEMA;
 
 @Component
 class DynamoDBSessionRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamoDBSessionRepository.class);
-    private final DynamoDbTemplate dynamoDbTemplate;
+    private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final ObjectMapper objectMapper;
 
-    DynamoDBSessionRepository(@Lazy DynamoDbTemplate dynamoDbTemplate, ObjectMapper objectMapper) {
-        this.dynamoDbTemplate = dynamoDbTemplate;
+    DynamoDBSessionRepository(DynamoDbEnhancedClient dynamoDbEnhancedClient, ObjectMapper objectMapper) {
+        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.objectMapper = objectMapper;
     }
 
+    @Reflective
     RawRequestSession get(String sessionId) {
         try {
-            DynamoDbSessionData load = dynamoDbTemplate.load(Key.builder().partitionValue(sessionId).build(), DynamoDbSessionData.class);
+            DynamoDbTable<DynamoDbSessionData> mappedTable = dynamoDbEnhancedClient.table("dynamo_db_session_data", TABLE_SCHEMA);
+            DynamoDbSessionData load = mappedTable.getItem(Key.builder().partitionValue(sessionId).build());
             if (load == null) {
                 return null;
             }
@@ -39,12 +44,16 @@ class DynamoDBSessionRepository {
         }
     }
 
+    @Reflective
     void save(RawRequestSession requestSession) {
-        try {
-            dynamoDbTemplate.save(DynamoDbSessionData.from(requestSession.getId(), objectMapper.writeValueAsString(requestSession)));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        DynamoDbTable<DynamoDbSessionData> mappedTable = dynamoDbEnhancedClient.table("dynamo_db_session_data", TABLE_SCHEMA);
+        mappedTable.putItem(r -> {
+            try {
+                r.item(DynamoDbSessionData.from(requestSession.getId(), objectMapper.writeValueAsString(requestSession)));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 }

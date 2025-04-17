@@ -2,6 +2,9 @@ package de.mosesonline.http;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.localstack.LocalStackContainer;
@@ -60,6 +63,19 @@ class TestcontainersConfiguration {
         localstack.start();
     }
 
+    static class EnvInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        @Override
+        public void initialize(ConfigurableApplicationContext applicationContext) {
+            TestPropertyValues.of(
+                    "aws.dynamodb.accessKey=" + localstack.getAccessKey(),
+                    "aws.dynamodb.secretKey=" + localstack.getSecretKey(),
+                    "aws.dynamodb.region=" + localstack.getRegion(),
+                    "aws.dynamodb.endpoint=" + localstack.getEndpoint()
+            ).applyTo(applicationContext);
+        }
+    }
+
     @Bean
     DynamicPropertyRegistrar registerResourceServerIssuerProperty() {
         return (registry) -> {
@@ -67,10 +83,6 @@ class TestcontainersConfiguration {
             registry.add("second-backend-service.host.url", wiremockServer::getBaseUrl);
             registry.add("third-backend-service.host.url", wiremockServer::getBaseUrl);
             registry.add("fourth-backend-service.host.url", wiremockServer::getBaseUrl);
-            registry.add("aws.dynamodb.accessKey", localstack::getAccessKey);
-            registry.add("aws.dynamodb.secretKey", localstack::getSecretKey);
-            registry.add("aws.dynamodb.region", localstack::getRegion);
-            registry.add("aws.dynamodb.endpoint", localstack::getEndpoint);
         };
     }
 }

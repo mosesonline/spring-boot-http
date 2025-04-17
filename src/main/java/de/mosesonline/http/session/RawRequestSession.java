@@ -1,10 +1,12 @@
 package de.mosesonline.http.session;
 
 import de.mosesonline.http.model.UserData;
+import org.springframework.aot.hint.annotation.Reflective;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Reflective
 public class RawRequestSession {
     private UUID id;
     private UserData user;

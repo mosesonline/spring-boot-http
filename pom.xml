@@ -29,23 +29,26 @@
     </scm>
     <properties>
         <spring-cloud.version>2024.0.1</spring-cloud.version>
-        <junit-jupiter.version>5.12.1</junit-jupiter.version>
+        <junit-jupiter.version>5.12.2</junit-jupiter.version>
         <assertj.version>3.27.3</assertj.version>
         <mockito.version>5.17.0</mockito.version>
         <hamcrest.version>3.0</hamcrest.version>
         <java.version>24</java.version>
+        <spring-framework.version>6.2.6</spring-framework.version>
         <logbook-spring-boot-starter.version>3.11.0</logbook-spring-boot-starter.version>
         <aws-cloud.version>3.3.0</aws-cloud.version>
         <resilience4j.version>2.3.0</resilience4j.version>
         <commons-codec.version>1.18.0</commons-codec.version>
 
+        <micrometer.version>1.14.6</micrometer.version>
+        <micrometer-tracing.version>1.4.5</micrometer-tracing.version>
         <datasource-micrometer-spring-boot.version>1.1.0</datasource-micrometer-spring-boot.version>
         <archunit-junit5.version>1.4.0</archunit-junit5.version>
         <testcontainers.version>1.20.6</testcontainers.version>
         <!--        <jmolecules-integrations.version>0.24.1</jmolecules-integrations.version>-->
         <commons-compress.version>1.27.1</commons-compress.version>
         <awscdk.version>1.204.0</awscdk.version>
-        <awssdk-v2.version>2.31.18</awssdk-v2.version>
+        <awssdk-v2.version>2.31.23</awssdk-v2.version>
         <image.name>registry.github.com/mosesonline/services/http:latest</image.name>
     </properties>
     <dependencies>
@@ -218,6 +221,7 @@
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions> <!-- not necessary for arm64, but better take good habits now-->
                     <execution>
                         <id>process-aot</id>
@@ -238,17 +242,10 @@
                         <env>
                             <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
                             <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
-                            <BP_JVM_CDS_ENABLED>true</BP_JVM_CDS_ENABLED>
-                            <BPL_JVM_CDS_ENABLED>true</BPL_JVM_CDS_ENABLED>
-                            <BPL_SPRING_AOT_ENABLED>true</BPL_SPRING_AOT_ENABLED>
-                            <CDS_TRAINING_JAVA_TOOL_OPTIONS>
-                                -Dspring.config.location=optional:file:/config/application-cds.properties
-                            </CDS_TRAINING_JAVA_TOOL_OPTIONS>
                         </env>
                     </image>
                     <createdDate>now</createdDate>
                 </configuration>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -290,12 +287,12 @@
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-spring</artifactId>
-                        <version>6.4.0</version>
+                        <version>6.5.1</version>
                     </dependency>
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-testing-frameworks</artifactId>
-                        <version>3.5.1</version>
+                        <version>3.6.1</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -359,7 +356,7 @@
                 <plugin>
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.4.0</version>
+                    <version>6.6.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -376,11 +373,53 @@
     </build>
     <profiles>
         <profile>
+            <id>cds</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions> <!-- not necessary for arm64, but better take good habits now-->
+                            <execution>
+                                <id>process-aot</id>
+                                <goals>
+                                    <goal>process-aot</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <image>
+                                <builder>paketobuildpacks/builder-jammy-tiny</builder>
+                                <name>${image.name}</name>
+                                <bindings>
+                                    <binding>${project.basedir}/src/test/resources:/config:ro</binding>
+                                    <binding>${project.basedir}/src/test/resources/db-init:/app/src/test/resources/db-init:ro
+                                    </binding>
+                                </bindings>
+                                <env>
+                                    <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+                                    <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
+                                    <BP_JVM_CDS_ENABLED>true</BP_JVM_CDS_ENABLED>
+                                    <BPL_JVM_CDS_ENABLED>true</BPL_JVM_CDS_ENABLED>
+                                    <BPL_SPRING_AOT_ENABLED>true</BPL_SPRING_AOT_ENABLED>
+                                    <CDS_TRAINING_JAVA_TOOL_OPTIONS>
+                                        -Dspring.config.location=optional:file:/config/application-cds.properties
+                                    </CDS_TRAINING_JAVA_TOOL_OPTIONS>
+                                </env>
+                            </image>
+                            <createdDate>now</createdDate>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>aot</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
                         <executions> <!-- not necessary for arm64, but better take good habits now-->
                             <execution>
                                 <id>process-aot</id>
@@ -401,7 +440,6 @@
                             </image>
                             <createdDate>now</createdDate>
                         </configuration>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>

@@ -11,11 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 
 
 @Import({TestcontainersConfiguration.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Execution(ExecutionMode.CONCURRENT)
+@ContextConfiguration(initializers = TestcontainersConfiguration.EnvInitializer.class)
 class IntegrationTestBase {
     @LocalServerPort
     private Integer port;

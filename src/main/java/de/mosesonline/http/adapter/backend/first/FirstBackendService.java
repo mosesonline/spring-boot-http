@@ -16,20 +16,21 @@ import java.util.concurrent.CompletableFuture;
 @QualifiedBackendService(backendId = "first")
 class FirstBackendService implements BackendPort, SessionBackendPort {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirstBackendService.class);
-    private final FirstBackendClient backendClient;
-    private final FirstModelMapper mapper;
+    private final FirstBackendClient firstBackendClient;
+    private final FirstModelMapper firstModelMapper;
 
-    FirstBackendService(FirstBackendClient backendClient, FirstModelMapper mapper) {
-        this.backendClient = backendClient;
-        this.mapper = mapper;
+    FirstBackendService(FirstBackendClient firstBackendClient, FirstModelMapper firstModelMapper) {
+        this.firstBackendClient = firstBackendClient;
+        this.firstModelMapper = firstModelMapper;
     }
 
     @TimeLimiter(name = "first-backend-service")
     @Override
     public CompletableFuture<BackendData> fetchBackendData(String testCase) {
+        LOGGER.info("first fetchBackendData");
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return mapper.map(backendClient.callFirst(testCase));
+                return firstModelMapper.map(firstBackendClient.callFirst(testCase));
             } finally {
                 LOGGER.info("request finished");
             }
