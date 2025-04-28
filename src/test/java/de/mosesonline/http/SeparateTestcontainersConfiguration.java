@@ -18,14 +18,14 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @TestConfiguration(proxyBeanMethods = false)
 @Testcontainers
-class TestcontainersConfiguration {
+class SeparateTestcontainersConfiguration {
     @Container
     static final WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:3.13.0")
             .withoutBanner()
             .withCliArg("--verbose")
             .withCliArg("--print-all-network-traffic")
             .withCliArg("--global-response-templating")
-            .withLogConsumer(of -> LoggerFactory.getLogger(TestcontainersConfiguration.class)
+            .withLogConsumer(of -> LoggerFactory.getLogger(SeparateTestcontainersConfiguration.class)
                     .trace(of.getUtf8String()))
             .withMappingFromJSON("""
                     {

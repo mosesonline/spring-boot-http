@@ -9,6 +9,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.aot.DisabledInAotMode;
 
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import static org.hamcrest.Matchers.*;
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Execution(ExecutionMode.CONCURRENT)
+@DisabledInAotMode
 class SessionDataTest extends IntegrationTestBase {
 
     private static final String VALID_DATE_PATTERN = "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.\\d+)?([+\\-][0-9]{2}:[0-9]{2}|Z)";

@@ -49,13 +49,13 @@ class ExceptionControllerAdvice {
         }
     }
 
-    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<WebError> handleException(Exception e) {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(new WebError(e.getMessage()));
     }
 
-    @ExceptionHandler(value = BeanCreationException.class)
+    @ExceptionHandler(BeanCreationException.class)
     public ResponseEntity<WebError> handleException(BeanCreationException e) {
         if (e.getRootCause() instanceof BackendUnknownException exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(new WebError(exception.getMessage()));

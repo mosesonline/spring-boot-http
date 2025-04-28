@@ -9,10 +9,14 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import com.tngtech.archunit.lang.syntax.elements.GivenClassesConjunction;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledInNativeImage;
+import org.springframework.test.context.aot.DisabledInAotMode;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@DisabledInAotMode
+@DisabledInNativeImage
 class ArchitectureTests {
 
     private static final Pattern GREP_BACKEND_PACKAGE = Pattern.compile("de\\.mosesonline\\.http\\.adapter\\.backend\\.(?<baseBackendPackage>[^.]+).*");

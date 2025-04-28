@@ -17,7 +17,7 @@ import org.springframework.context.annotation.ReflectiveScan;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@SpringBootApplication
+@SpringBootApplication(proxyBeanMethods = false)
 @ImportRuntimeHints({HttpApplication.Hints.class})
 @RegisterReflection(classes = DynamoDbSessionData.class, memberCategories =
         {MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS})

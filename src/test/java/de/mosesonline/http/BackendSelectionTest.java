@@ -1,12 +1,22 @@
 package de.mosesonline.http;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -16,7 +26,33 @@ import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.notNullValue;
 
-class BackendSelectionTest extends IntegrationTestBase {
+@Import({SeparateTestcontainersConfiguration.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = SeparateTestcontainersConfiguration.EnvInitializer.class)
+class BackendSelectionTest {
+    @LocalServerPort
+    private Integer port;
+    protected MemoryLoggingAppender memoryAppender;
+
+    @BeforeEach
+    void setUp() {
+        RestAssured.port = port;
+    }
+
+
+    @BeforeEach
+    void setupLogging() {
+        Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        memoryAppender = new MemoryLoggingAppender();
+        memoryAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
+        logger.addAppender(memoryAppender);
+        memoryAppender.start();
+    }
+
+    @AfterEach
+    void stopLogging() {
+        memoryAppender.stop();
+    }
 
     @ParameterizedTest
     @MethodSource("getSimpleCallData")

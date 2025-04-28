@@ -5,24 +5,26 @@ services:
       - "18080:8080"
       - "18081:8081"
     mem_limit: 1G
-#    logging:
-#      driver: loki
-#      options:
-#        loki-url: http://localhost:3100/loki/api/v1/push
-#        loki-retries: 2
-#        loki-max-backoff: 800ms
-#        loki-timeout: 1s
-#        keep-file: "true"
-#        loki-pipeline-stages: |
-#          - json:
-#              expressions:
-#                x_session_id: "\"X-Session-Id\""
-#                spanId: spanId
-#                traceId: traceId
-#          - labels:
-#              x_session_id:
-#              spanId:
-#              traceId:
+    logging:
+      driver: loki
+      options:
+        loki-url: http://localhost:3100/loki/api/v1/push
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        loki-pipeline-stages: |
+          - json:
+              expressions:
+                x_session_id: "\"X-Session-Id\""
+                spanID: spanId
+                traceID: traceId
+                x_backend: "\"x-backend\""
+          - labels:
+              x_session_id:
+              x_backend:
+              spanID:
+              traceID:
     environment:
       - AWS_DYNAMODB_ACCESSKEY=test
       - AWS_DYNAMODB_SECRETKEY=test
@@ -31,14 +33,15 @@ services:
       - FIRSTBACKENDSERVICE_HOST_URL=http://backends:8080
       - SECONDBACKENDSERVICE_HOST_URL=http://backends:8080
       - FOURTHBACKENDSERVICE_HOST_URL=http://backends:8080
-      - SPRING_PROFILES_ACTIVE=aot
+      - SPRING_PROFILES_ACTIVE=prod
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
     depends_on:
       - dynamo
-#      - loki
+      - loki
       - backends
   backends:
     container_name: backends
-    image: wiremock/wiremock:3.12.1
+    image: wiremock/wiremock:3.13.0
     command:
       - "/docker-entrypoint.sh"
       - "--verbose"
@@ -58,36 +61,43 @@ services:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - ./container-config/dynamo/db-init/init-dynamodb.sh:/etc/localstack/init/ready.d/init-dynamodb.sh
-#  prometheus:
-#    container_name: prometheus
-#    image: prom/prometheus:main
-#    ports:
-#      - "19090:9090"
-#    volumes:
-#      - ./container-config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
-#  grafana:
-#    container_name: grafana
-#    image: grafana/grafana-oss:main
-#    ports:
-#      - "13000:3000"
-#    depends_on:
-#      - prometheus
-#    environment:
-#      - GF_PATHS_DATA=/var/lib/grafana/data
-#    volumes:
-#      - /etc/localtime:/etc/localtime:ro
-#      - /etc/timezone:/etc/timezone:ro
-#      - ./container-config/grafana/data:/var/lib/grafana/data
-#      - ./container-config/grafana/grafana.ini:/etc/grafana/grafana.ini
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:main
+    ports:
+      - "19090:9090"
+    volumes:
+      - ./container-config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:main
+    ports:
+      - "13000:3000"
+    depends_on:
+      - prometheus
+    environment:
+      - GF_PATHS_DATA=/var/lib/grafana/data
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./container-config/grafana/data:/var/lib/grafana/data
+      - ./container-config/grafana/grafana.ini:/etc/grafana/grafana.ini
 # needs docker plugin install grafana/loki-docker-driver:3.4.2-amd64 keep version up-to-date
-#  loki:
-#    container_name: loki
-#    image: grafana/loki:latest
-#    ports:
-#      - "3100:3100"
-#    command: -config.file=/etc/loki/config.yml
-#    volumes:
-#      - ./container-config/loki/config.yaml:/etc/loki/config.yml
-#      - loki:/data/loki:rw
-#volumes:
-#  loki:
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./container-config/loki/config.yaml:/etc/loki/config.yml
+      - loki:/data/loki:rw
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+volumes:
+  loki:

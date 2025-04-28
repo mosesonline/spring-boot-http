@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.zalando.logbook.json.JsonPathBodyFilters.jsonPath;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class LoggingConfiguration {
 
     private static final IntNode INT_REPLACEMENT = new IntNode(-1234);

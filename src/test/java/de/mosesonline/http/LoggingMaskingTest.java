@@ -3,6 +3,7 @@ package de.mosesonline.http;
 import ch.qos.logback.classic.Level;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.aot.DisabledInAotMode;
 import org.springframework.test.json.JsonContent;
 import org.springframework.test.json.JsonContentAssert;
 
@@ -12,6 +13,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
+@DisabledInAotMode
 class LoggingMaskingTest extends IntegrationTestBase {
 
     @Test

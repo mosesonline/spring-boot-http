@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.4</version>
+        <version>3.4.5</version>
     </parent>
     <groupId>de.mosesonline</groupId>
     <artifactId>spring-boot-http-gateway</artifactId>
@@ -29,26 +29,28 @@
     </scm>
     <properties>
         <spring-cloud.version>2024.0.1</spring-cloud.version>
-        <junit-jupiter.version>5.12.2</junit-jupiter.version>
-        <assertj.version>3.27.3</assertj.version>
-        <mockito.version>5.17.0</mockito.version>
         <hamcrest.version>3.0</hamcrest.version>
         <java.version>24</java.version>
-        <spring-framework.version>6.2.6</spring-framework.version>
-        <logbook-spring-boot-starter.version>3.11.0</logbook-spring-boot-starter.version>
+        <logbook-spring-boot-starter.version>3.12.0</logbook-spring-boot-starter.version>
         <aws-cloud.version>3.3.0</aws-cloud.version>
-        <resilience4j.version>2.3.0</resilience4j.version>
+        <resilience4j.version>2.4.0-SNAPSHOT</resilience4j.version>
+        <jackson-bom.version>2.19.0</jackson-bom.version>
         <commons-codec.version>1.18.0</commons-codec.version>
-
+        <snakeyaml.version>2.4</snakeyaml.version>
         <micrometer.version>1.14.6</micrometer.version>
         <micrometer-tracing.version>1.4.5</micrometer-tracing.version>
         <datasource-micrometer-spring-boot.version>1.1.0</datasource-micrometer-spring-boot.version>
-        <archunit-junit5.version>1.4.0</archunit-junit5.version>
-        <testcontainers.version>1.20.6</testcontainers.version>
+        <httpclient5.version>5.4.4</httpclient5.version>
         <!--        <jmolecules-integrations.version>0.24.1</jmolecules-integrations.version>-->
         <commons-compress.version>1.27.1</commons-compress.version>
         <awscdk.version>1.204.0</awscdk.version>
-        <awssdk-v2.version>2.31.23</awssdk-v2.version>
+        <awssdk-v2.version>2.31.30</awssdk-v2.version>
+        <!-- Test properties -->
+        <archunit-junit5.version>1.4.0</archunit-junit5.version>
+        <testcontainers.version>1.21.0</testcontainers.version>
+        <junit-jupiter.version>5.12.2</junit-jupiter.version>
+        <assertj.version>3.27.3</assertj.version>
+        <mockito.version>5.17.0</mockito.version>
         <image.name>registry.github.com/mosesonline/services/http:latest</image.name>
     </properties>
     <dependencies>
@@ -107,11 +109,15 @@
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <artifactId>micrometer-java21</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.zipkin.reporter2</groupId>
-            <artifactId>zipkin-reporter-brave</artifactId>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
         </dependency>
         <!--       <dependency>
                    <groupId>io.github.openfeign</groupId>
@@ -233,6 +239,9 @@
                         <goals>
                             <goal>process-aot</goal>
                         </goals>
+                        <configuration>
+                            <profiles>aot</profiles>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -247,6 +256,8 @@
                         <env>
                             <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
                             <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
+                            <BPL_JAVA_NMT_ENABLED>false</BPL_JAVA_NMT_ENABLED>
+                            <BP_JAVA_NMT_ENABLED>false</BP_JAVA_NMT_ENABLED>
                         </env>
                     </image>
                     <createdDate>now</createdDate>
@@ -292,12 +303,12 @@
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-spring</artifactId>
-                        <version>6.5.1</version>
+                        <version>6.6.0</version>
                     </dependency>
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
                         <artifactId>rewrite-testing-frameworks</artifactId>
-                        <version>3.6.1</version>
+                        <version>3.7.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -361,7 +372,7 @@
                 <plugin>
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>6.6.1</version>
+                    <version>6.7.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -377,6 +388,40 @@
         </pluginManagement>
     </build>
     <profiles>
+        <profile>
+            <id>nativeTest</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <configuration>
+                            <buildArgs>
+                                <arg>--verbose</arg>
+                                <arg>--initialize-at-build-time=com.tngtech.archunit.junit.internal.ArchUnitEngineDescriptor,com.tngtech.archunit.junit.internal.ArchUnitTestEngine</arg>
+                            </buildArgs>
+                        </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-maven-plugin</artifactId>
+                            <executions> <!-- not necessary for arm64, but better take good habits now-->
+                                <execution>
+                                    <id>process-test-aot</id>
+                                    <goals>
+                                        <goal>process-test-aot</goal>
+                                    </goals>
+                                    <configuration>
+                                        <jvmArguments>--add-opens=java.base/java.lang=ALL-UNNAMED</jvmArguments>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
         <profile>
             <id>cds</id>
             <build>
